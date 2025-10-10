@@ -6,12 +6,12 @@ public class GreyScale implements IPixelProcessor{
 
     @Override
     public int[][] processImage(int[][] originalPixels) {
-        int width = originalPixels.length;
-        int height = originalPixels[0].length;
-        int[][] out = new int[width][height];
+        int height = originalPixels.length;
+        int width  = originalPixels[0].length;
+        int[][] out = new int[height][width];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int p = originalPixels[x][y];
+                int p = originalPixels[y][x];
 
                 int a = getAlpha(p);
                 int r = getRed(p);
@@ -20,7 +20,7 @@ public class GreyScale implements IPixelProcessor{
 
                 int gray = (int)Math.round(0.299 * r + 0.587 * g + 0.114 * b);
 
-                out[x][y] = toArgbPixel(a, gray, gray, gray);
+                out[y][x] = toArgbPixel(a, gray, gray, gray);
             }
         }
         return out;

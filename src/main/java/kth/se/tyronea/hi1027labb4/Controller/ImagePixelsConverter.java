@@ -12,12 +12,12 @@ public class ImagePixelsConverter {
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
 
-        int[][] pixelMatrix = new int[width][height];
+        int[][] pixelMatrix = new int[height][width];
         PixelReader pixelReader = image.getPixelReader();
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                pixelMatrix[x][y] = pixelReader.getArgb(x, y);
+                pixelMatrix[y][x] = pixelReader.getArgb(x, y);
             }
         }
 
@@ -26,8 +26,8 @@ public class ImagePixelsConverter {
 
     public static Image pixelsToImage(int[][] pixelMatrix) {
 
-        int width = pixelMatrix.length;
-        int height = pixelMatrix[0].length;
+        int width = pixelMatrix[0].length;
+        int height = pixelMatrix.length;
 
         WritableImage writableImage = new WritableImage(width, height);
         PixelWriter pixelWriter = writableImage.getPixelWriter();
@@ -35,7 +35,7 @@ public class ImagePixelsConverter {
         int argbValue;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                argbValue = pixelMatrix[x][y];
+                argbValue = pixelMatrix[y][x];
                 pixelWriter.setArgb(x,y,argbValue);
             }
         }
