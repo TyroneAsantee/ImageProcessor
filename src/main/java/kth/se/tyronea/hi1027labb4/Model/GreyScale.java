@@ -18,7 +18,7 @@ public class GreyScale implements IPixelProcessor{
                 int g = getGreen(p);
                 int b = getBlue(p);
 
-                int gray = (int)Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                int gray = (int)Math.round((r + g + b) / 3.0);
 
                 out[y][x] = toArgbPixel(a, gray, gray, gray);
             }
