@@ -39,7 +39,6 @@ public class ImagePixelsConverter {
                 pixelWriter.setArgb(x,y,argbValue);
             }
         }
-
         return writableImage;
     }
 }

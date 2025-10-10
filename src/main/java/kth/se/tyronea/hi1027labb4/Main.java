@@ -7,7 +7,7 @@ import kth.se.tyronea.hi1027labb4.Controller.Controller;
 import kth.se.tyronea.hi1027labb4.Model.ImageModel;
 import kth.se.tyronea.hi1027labb4.View.MainView;
 
-import java.io.IOException;
+
 
 public class Main extends Application {
     @Override
@@ -15,7 +15,7 @@ public class Main extends Application {
         ImageModel model = new ImageModel();
         Controller controller = new Controller(model);
         MainView view = new MainView(controller);
-        Scene scene = new Scene(view.getRoot(), 700, 600);
+        Scene scene = new Scene(view.getRoot(), 800, 450);
 
         stage.setTitle("Image Modifier");
         stage.setScene(scene);

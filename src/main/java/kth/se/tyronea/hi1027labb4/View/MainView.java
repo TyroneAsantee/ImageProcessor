@@ -2,6 +2,7 @@ package kth.se.tyronea.hi1027labb4.View;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -23,16 +24,20 @@ public class MainView extends VBox {
     private MenuItem sharpen;
     private MenuItem addGeneric;
     private MenuItem reset;
+    private HistogramView histogramView;
 
     public MainView(Controller controller){
         super();
         this.controller = controller;
         root = new BorderPane();
+
         createMenuBar();
         createUIComponent();
         addEventHandlers(controller);
+
         root.setTop(menuBar);
         root.setCenter(pane);
+        root.setLeft(histogramView);
     }
 
     private void createMenuBar(){
@@ -62,6 +67,13 @@ public class MainView extends VBox {
         pane.setContent(imageView);
         pane.setFitToHeight(true);
         pane.setFitToWidth(true);
+        BorderPane.setMargin(pane, new Insets(0, 0, 0, 12));
+
+        histogramView = new HistogramView();
+        histogramView.setPrefWidth(260);
+        histogramView.setMinWidth(220);
+        histogramView.setMaxWidth(320);
+        BorderPane.setMargin(histogramView, new Insets(10, 0, 10, 10));
     }
 
 
@@ -75,8 +87,7 @@ public class MainView extends VBox {
             public void handle(ActionEvent actionEvent) {
                 Image img = controller.onLoadImageFromResource();
                 if(img == null) {
-                    Alert alert = showAlert();
-                    alert.showAndWait();
+                    showAlert();
                 } else {
                     imageView.setImage(img);
                 }
@@ -89,8 +100,7 @@ public class MainView extends VBox {
             public void handle(ActionEvent actionEvent) {
                 Image img = controller.onGrayScaleSelected();
                 if(img == null) {
-                    Alert alert = showAlert();
-                    alert.showAndWait();
+                    showAlert();
                 } else {
                     imageView.setImage(img);
                 }
@@ -103,22 +113,47 @@ public class MainView extends VBox {
             public void handle(ActionEvent actionEvent) {
                 Image img = controller.onRevertToOriginal();
                 if(img == null) {
-                    Alert alert = showAlert();
-                    alert.showAndWait();
+                    showAlert();
                 } else {
                     imageView.setImage(img);
                 }
             }
         };
         reset.setOnAction(resetHandler);
+
+        EventHandler<ActionEvent> sharpenHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Image img = controller.onSharpenSelected();
+                if(img == null){
+                    showAlert();
+                } else {
+                    imageView.setImage(img);
+                }
+            }
+        };
+        sharpen.setOnAction(sharpenHandler);
+
+        EventHandler<ActionEvent> blurHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Image img = controller.onBlurSelected();
+                if(img == null){
+                    showAlert();
+                } else {
+                    imageView.setImage(img);
+                }
+            }
+        };
+        blur.setOnAction(blurHandler);
     }
 
-    private Alert showAlert(){
+    private void showAlert(){
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Operation failed");
         alert.setHeaderText("Couldn't load image");
         alert.setContentText("Make sure an image is loaded and available.");
-        return alert;
+        alert.showAndWait();
     }
 
 }

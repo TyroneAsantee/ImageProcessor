@@ -7,7 +7,7 @@
     <groupId>kth.se.tyronea</groupId>
     <artifactId>HI1027-Labb4</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>HI1027-Labb3</name>
+    <name>HI1027-Labb4</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>15.0.1</version>
+            <version>17.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>

@@ -14,9 +14,18 @@ public class Controller {
         this.model = model;
     }
 
+    /*public void onLoadImage(){
+        LOAD IMAGE TO FILE
+    }*/
+
+    /*public void onSaveImage(){
+        SAVE IMAGE TO FILE
+    }*/
+
+
     public Image onLoadImageFromResource(){
         try {
-            InputStream input = getClass().getResourceAsStream("/mountain.png");
+            InputStream input = getClass().getResourceAsStream("/sharpen.png");
             if (input == null) {
                 System.err.println("Could not find picture");
                 return null;
@@ -37,7 +46,6 @@ public class Controller {
             e.printStackTrace();
             return null;
         }
-
     }
 
     public Image onGrayScaleSelected(){
@@ -60,10 +68,27 @@ public class Controller {
             e.printStackTrace();
             return null;
         }
-
     }
 
-    /*public void onLoadImage(){
+    public Image onBlurSelected(){
+        try{
+            model.apply(new Blur());
+            int[][] cur = model.getCurrentPixels();
+            return ImagePixelsConverter.pixelsToImage(cur);
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-    }*/
+    public Image onSharpenSelected(){
+        try{
+            model.apply(new Sharpening());
+            int[][] cur = model.getCurrentPixels();
+            return ImagePixelsConverter.pixelsToImage(cur);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
