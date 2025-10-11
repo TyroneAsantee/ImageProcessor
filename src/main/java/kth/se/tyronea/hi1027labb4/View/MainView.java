@@ -11,9 +11,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.stage.FileChooser;
+import java.io.File;
+
 import kth.se.tyronea.hi1027labb4.Controller.Controller;
 
 public class MainView extends VBox {
+    private FileChooser fileChooser;
+    private Image image = null;
     private MenuBar menuBar;
     private Controller controller;
     private ImageView imageView;
@@ -23,6 +28,8 @@ public class MainView extends VBox {
     private MenuItem blur;
     private MenuItem sharpen;
     private MenuItem addGeneric;
+    private MenuItem openFile;
+    private MenuItem saveFile;
     private MenuItem reset;
     private HistogramView histogramView;
 
@@ -30,6 +37,12 @@ public class MainView extends VBox {
         super();
         this.controller = controller;
         root = new BorderPane();
+
+        // === Filväljare (lärarens kod) ===
+        fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(
+                "Image files", "*.png", "*.jpg", "*.bmp");
+        fileChooser.getExtensionFilters().add(filter);
 
         createMenuBar();
         createUIComponent();
@@ -45,13 +58,18 @@ public class MainView extends VBox {
         Menu processMenu = new Menu("Process");
         Menu helpMenu = new Menu("Help");
 
+
         grayScale = new MenuItem("GrayScale");
         blur = new MenuItem("Blur");
         sharpen = new MenuItem("Sharpen");
         addGeneric = new MenuItem("Add generic image");
+        openFile = new MenuItem("Open image from file");
+        saveFile = new MenuItem("Save image to file");
         reset = new MenuItem("Reset");
+
+
+        fileMenu.getItems().addAll(openFile, addGeneric, saveFile);
         processMenu.getItems().addAll(grayScale, blur, sharpen, reset);
-        fileMenu.getItems().add(addGeneric);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, processMenu, helpMenu);
@@ -76,12 +94,36 @@ public class MainView extends VBox {
         BorderPane.setMargin(histogramView, new Insets(10, 0, 10, 10));
     }
 
-
     public Parent getRoot(){
-            return root;
+        return root;
     }
 
+
+    protected void onOpenImageFile() {
+        File imageFile = fileChooser.showOpenDialog(null);
+        if (imageFile != null) {
+            image = new Image(imageFile.toURI().toString());
+            Image img = controller.onLoadImageFromFile(image);
+            if (img == null) {
+                showAlert();
+            } else {
+                imageView.setImage(img);
+            }
+        }
+    }
+
+    protected void onSaveImageFile() {
+        File file = fileChooser.showSaveDialog(null);
+        if (file != null) {
+            controller.onSaveImageToFile(file);
+        }
+    }
+
+
     public void addEventHandlers(Controller controller){
+        openFile.setOnAction(event -> onOpenImageFile());
+        saveFile.setOnAction(event -> onSaveImageFile());
+
         EventHandler<ActionEvent> genericHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -94,6 +136,7 @@ public class MainView extends VBox {
             }
         };
         addGeneric.setOnAction(genericHandler);
+
 
         EventHandler<ActionEvent> greyScaleHandler = new EventHandler<ActionEvent>() {
             @Override
@@ -108,6 +151,7 @@ public class MainView extends VBox {
         };
         grayScale.setOnAction(greyScaleHandler);
 
+
         EventHandler<ActionEvent> resetHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -121,6 +165,7 @@ public class MainView extends VBox {
         };
         reset.setOnAction(resetHandler);
 
+
         EventHandler<ActionEvent> sharpenHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -133,6 +178,7 @@ public class MainView extends VBox {
             }
         };
         sharpen.setOnAction(sharpenHandler);
+
 
         EventHandler<ActionEvent> blurHandler = new EventHandler<ActionEvent>() {
             @Override
@@ -155,5 +201,4 @@ public class MainView extends VBox {
         alert.setContentText("Make sure an image is loaded and available.");
         alert.showAndWait();
     }
-
 }
