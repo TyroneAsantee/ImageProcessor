@@ -121,8 +121,23 @@ public class MainView extends VBox {
 
 
     public void addEventHandlers(Controller controller){
-        openFile.setOnAction(event -> onOpenImageFile());
-        saveFile.setOnAction(event -> onSaveImageFile());
+
+        EventHandler<ActionEvent> openFileHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                onOpenImageFile();
+            }
+        };
+        openFile.setOnAction(openFileHandler);
+
+
+        EventHandler<ActionEvent> saveFileHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                onSaveImageFile();
+            }
+        };
+        saveFile.setOnAction(saveFileHandler);
 
         EventHandler<ActionEvent> genericHandler = new EventHandler<ActionEvent>() {
             @Override
