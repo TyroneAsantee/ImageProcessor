@@ -5,9 +5,7 @@ import kth.se.tyronea.hi1027labb4.FileIO;
 import kth.se.tyronea.hi1027labb4.Model.*;
 import java.io.InputStream;
 import java.io.File;
-import java.awt.image.BufferedImage;
-import javafx.embed.swing.SwingFXUtils;
-import javax.imageio.ImageIO;
+
 
 
 public class Controller {
