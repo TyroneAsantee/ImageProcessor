@@ -176,7 +176,7 @@ public class MainView extends VBox {
                 File imageFile = fileChooser.showOpenDialog(null);
                 if (imageFile != null) {
                     image = new Image(imageFile.toURI().toString());
-                    Image img = controller.onLoadImageFromFile(image);
+                    Image img = controller.onLoadImageFromFile(imageFile);
                     if (img == null) {
                         showAlert();
                     } else {

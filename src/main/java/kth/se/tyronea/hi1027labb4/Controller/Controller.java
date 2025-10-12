@@ -1,6 +1,7 @@
 package kth.se.tyronea.hi1027labb4.Controller;
 
 import javafx.scene.image.Image;
+import kth.se.tyronea.hi1027labb4.FileIO;
 import kth.se.tyronea.hi1027labb4.Model.*;
 import java.io.InputStream;
 import java.io.File;
@@ -42,12 +43,14 @@ public class Controller {
         }
     }
 
-    public Image onLoadImageFromFile(Image fxImage) {
+    public Image onLoadImageFromFile(File file) {
         try {
+            Image fxImage = FileIO.readImage(file);
+            if (fxImage == null) return null;
+
             int[][] pixels = ImagePixelsConverter.imageToPixels(fxImage);
             model.loadFromPixels(pixels);
-            int[][] current = model.getCurrentPixels();
-            return ImagePixelsConverter.pixelsToImage(current);
+            return ImagePixelsConverter.pixelsToImage(model.getCurrentPixels());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -61,22 +64,8 @@ public class Controller {
                 System.err.println("No image loaded to save.");
                 return;
             }
-
             Image fxImage = ImagePixelsConverter.pixelsToImage(current);
-            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(fxImage, null);
-
-            String name = file.getName().toLowerCase();
-            String format = (name.endsWith(".jpg") || name.endsWith(".jpeg")) ? "jpg"
-                    : (name.endsWith(".bmp")) ? "bmp"
-                    : "png";
-
-            if (!name.contains(".")) {
-                file = new File(file.getParentFile(), file.getName() + ".png");
-                format = "png";
-            }
-
-            ImageIO.write(bufferedImage, format, file);
-            System.out.println("Image saved to: " + file.getAbsolutePath());
+            FileIO.writeImage(fxImage, file);
         } catch (Exception e) {
             e.printStackTrace();
         }
