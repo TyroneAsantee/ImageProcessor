@@ -98,34 +98,21 @@ public class MainView extends VBox {
         return root;
     }
 
-
-    protected void onOpenImageFile() {
-        File imageFile = fileChooser.showOpenDialog(null);
-        if (imageFile != null) {
-            image = new Image(imageFile.toURI().toString());
-            Image img = controller.onLoadImageFromFile(image);
-            if (img == null) {
-                showAlert();
-            } else {
-                imageView.setImage(img);
-            }
-        }
-    }
-
-    protected void onSaveImageFile() {
-        File file = fileChooser.showSaveDialog(null);
-        if (file != null) {
-            controller.onSaveImageToFile(file);
-        }
-    }
-
-
     public void addEventHandlers(Controller controller){
 
         EventHandler<ActionEvent> openFileHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                onOpenImageFile();
+                File imageFile = fileChooser.showOpenDialog(null);
+                if (imageFile != null) {
+                    image = new Image(imageFile.toURI().toString());
+                    Image img = controller.onLoadImageFromFile(image);
+                    if (img == null) {
+                        showAlert();
+                    } else {
+                        imageView.setImage(img);
+                    }
+                }
             }
         };
         openFile.setOnAction(openFileHandler);
@@ -134,7 +121,10 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> saveFileHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                onSaveImageFile();
+                File file = fileChooser.showSaveDialog(null);
+                if (file != null) {
+                    controller.onSaveImageToFile(file);
+                }
             }
         };
         saveFile.setOnAction(saveFileHandler);
