@@ -4,7 +4,6 @@ import javafx.scene.image.Image;
 import kth.se.tyronea.hi1027labb4.Model.*;
 import java.io.InputStream;
 import java.io.File;
-import java.io.File;
 import java.awt.image.BufferedImage;
 import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
@@ -34,9 +33,8 @@ public class Controller {
             model.loadFromPixels(pixels);
 
             int[][] current = model.getCurrentPixels();
-            Image result = ImagePixelsConverter.pixelsToImage(current);
 
-            return result;
+            return ImagePixelsConverter.pixelsToImage(current);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,8 +82,6 @@ public class Controller {
         }
     }
 
-
-
     public Image onGrayScaleSelected(){
         try {
             model.apply(new GreyScale());
@@ -128,5 +124,32 @@ public class Controller {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public Image onWindowLevelSelected(){
+        try{
+            model.apply(new GreyScale());
+            int[][] cur = model.getCurrentPixels();
+            return ImagePixelsConverter.pixelsToImage(cur);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Image onWindowLevelChanged(int window, int level){
+        if(window < 1 ) window = 1;
+        if(!model.isLoaded()) return null;
+        int[][] original = model.getOriginalPixels();
+        int[][] gray = new GreyScale().processImage(original);
+        int[][] out  = new WindowLevel(window, level).processImage(gray);
+
+        model.setCurrentPixels(out);
+        return ImagePixelsConverter.pixelsToImage(out);
+    }
+
+    public int[][] getHistogramData(){
+        if(!model.isLoaded()) return null;
+        return model.getHistogramForCurrentPixels();
     }
 }

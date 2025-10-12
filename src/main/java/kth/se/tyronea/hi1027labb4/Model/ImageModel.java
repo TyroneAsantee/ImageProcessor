@@ -1,5 +1,7 @@
 package kth.se.tyronea.hi1027labb4.Model;
 
+import kth.se.tyronea.hi1027labb4.Controller.PixelConverter;
+
 public class ImageModel {
 
     private int[][] originalPixels;
@@ -42,6 +44,21 @@ public class ImageModel {
         return copy;
     }
 
+    public int[][] getOriginalPixels() {
+        if(!isLoaded) throw new IllegalStateException("No image loaded");
+        int[][] copy = new int[height][width];
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                copy[y][x] = originalPixels[y][x];
+            }
+        }
+        return copy;
+    }
+
+    public void setCurrentPixels(int[][] currentPixels) {
+        this.currentPixels = currentPixels;
+    }
+
     public void resetToOriginal(){
         if(!isLoaded) throw new IllegalStateException("No image loaded");
         for(int y = 0; y < height; y++){
@@ -49,6 +66,28 @@ public class ImageModel {
                 currentPixels[y][x] = originalPixels[y][x];
             }
         }
+    }
+
+    public int[][] getHistogramForCurrentPixels(){
+        if(currentPixels == null) return null;
+        int[][] freq = new int[256][3];
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                int argb = currentPixels[y][x];
+                int red = PixelConverter.getRed(argb);
+                int green = PixelConverter.getGreen(argb);
+                int blue = PixelConverter.getBlue(argb);
+
+                freq[red][0]++;
+                freq[green][1]++;
+                freq[blue][2]++;
+            }
+        }
+        return freq;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
     }
 
     public int getHeight() {

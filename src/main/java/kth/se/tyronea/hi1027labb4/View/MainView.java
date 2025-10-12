@@ -3,11 +3,13 @@ package kth.se.tyronea.hi1027labb4.View;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -25,6 +27,7 @@ public class MainView extends VBox {
     private ScrollPane pane;
     private BorderPane root;
     private MenuItem grayScale;
+    private MenuItem windowLevel;
     private MenuItem blur;
     private MenuItem sharpen;
     private MenuItem addGeneric;
@@ -32,13 +35,17 @@ public class MainView extends VBox {
     private MenuItem saveFile;
     private MenuItem reset;
     private HistogramView histogramView;
+    private Slider levelSlider;
+    private Slider windowSlider;
+    private Label lblWindowValue;
+    private Label lblLevelValue;
+    private VBox leftPanel;
 
     public MainView(Controller controller){
         super();
         this.controller = controller;
         root = new BorderPane();
 
-        // === Filväljare (lärarens kod) ===
         fileChooser = new FileChooser();
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(
                 "Image files", "*.png", "*.jpg", "*.bmp");
@@ -50,7 +57,6 @@ public class MainView extends VBox {
 
         root.setTop(menuBar);
         root.setCenter(pane);
-        root.setLeft(histogramView);
     }
 
     private void createMenuBar(){
@@ -60,6 +66,7 @@ public class MainView extends VBox {
 
 
         grayScale = new MenuItem("GrayScale");
+        windowLevel = new MenuItem("Window/Level");
         blur = new MenuItem("Blur");
         sharpen = new MenuItem("Sharpen");
         addGeneric = new MenuItem("Add generic image");
@@ -67,9 +74,8 @@ public class MainView extends VBox {
         saveFile = new MenuItem("Save image to file");
         reset = new MenuItem("Reset");
 
-
         fileMenu.getItems().addAll(openFile, addGeneric, saveFile);
-        processMenu.getItems().addAll(grayScale, blur, sharpen, reset);
+        processMenu.getItems().addAll(grayScale, blur, sharpen, windowLevel, reset);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, processMenu, helpMenu);
@@ -86,12 +92,76 @@ public class MainView extends VBox {
         pane.setFitToHeight(true);
         pane.setFitToWidth(true);
         BorderPane.setMargin(pane, new Insets(0, 0, 0, 12));
+    }
 
+    public void createHistogramView(){
         histogramView = new HistogramView();
         histogramView.setPrefWidth(260);
         histogramView.setMinWidth(220);
         histogramView.setMaxWidth(320);
         BorderPane.setMargin(histogramView, new Insets(10, 0, 10, 10));
+
+        windowSlider = new Slider(1, 255, 35);   // min=1 för att undvika div/0 i modellen
+        windowSlider.setShowTickMarks(true);
+        windowSlider.setShowTickLabels(true);
+        windowSlider.setMajorTickUnit(50);
+        windowSlider.setBlockIncrement(1);
+        lblWindowValue = new Label("35");
+
+        HBox windowRow = new HBox(8, new Label("Window"), windowSlider, lblWindowValue);
+        windowRow.setAlignment(Pos.CENTER_LEFT);
+
+        levelSlider = new Slider(0, 255, 75);
+        levelSlider.setShowTickMarks(true);
+        levelSlider.setShowTickLabels(true);
+        levelSlider.setMajorTickUnit(50);
+        levelSlider.setBlockIncrement(1);
+        lblLevelValue = new Label("75");
+
+        HBox levelRow = new HBox(8, new Label("Level"), levelSlider, lblLevelValue);
+        HBox.setMargin(levelSlider, new Insets(0, 0, 0, 15));
+        levelRow.setAlignment(Pos.CENTER_LEFT);
+
+        leftPanel = new VBox(12, histogramView, new Separator(), windowRow, levelRow);
+        leftPanel.setPadding(new Insets(10, 10, 10, 10));
+        BorderPane.setMargin(leftPanel, new Insets(10, 0, 10, 10));
+
+        root.setLeft(leftPanel);
+    }
+
+    public void bindSliderControls(Controller controller){
+        levelSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            lblLevelValue.setText(String.valueOf(newVal.intValue()));
+
+            int w = (int) windowSlider.getValue();
+            int l = newVal.intValue();
+
+            Image out = controller.onWindowLevelChanged(w, l);
+            if(out == null){
+                showAlert();
+            } else {
+                imageView.setImage(out);
+                int[][] freq = controller.getHistogramData();
+                histogramView.updateView(freq);
+            }
+        });
+
+        windowSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            lblWindowValue.setText(String.valueOf(newVal.intValue()));
+
+            int w = newVal.intValue();
+            int l = (int) levelSlider.getValue();
+
+            Image out = controller.onWindowLevelChanged(w, l);
+            if (out != null) {
+                imageView.setImage(out);
+
+                int[][] freq = controller.getHistogramData();
+                histogramView.updateView(freq);
+            } else {
+                showAlert();
+            }
+        });
     }
 
     public Parent getRoot(){
@@ -197,7 +267,29 @@ public class MainView extends VBox {
             }
         };
         blur.setOnAction(blurHandler);
+
+        EventHandler<ActionEvent> windowLevelHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Image img = controller.onWindowLevelSelected();
+                if(img == null){
+                    showAlert();
+                } else {
+                    if(histogramView == null){
+                        createHistogramView();
+                    }
+                    bindSliderControls(controller);
+                    imageView.setImage(img);
+
+                    int[][] freq = controller.getHistogramData();
+                    if (freq != null) histogramView.updateView(freq);
+                }
+            }
+        };
+        windowLevel.setOnAction(windowLevelHandler);
     }
+
+
 
     private void showAlert(){
         Alert alert = new Alert(AlertType.ERROR);
