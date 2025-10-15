@@ -15,6 +15,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
 import java.io.File;
+import java.io.IOException;
 
 import kth.se.tyronea.hi1027labb4.Controller.Controller;
 
@@ -63,7 +64,6 @@ public class MainView extends VBox {
         Menu fileMenu = new Menu("File");
         Menu processMenu = new Menu("Process");
         Menu helpMenu = new Menu("Help");
-
 
         grayScale = new MenuItem("GrayScale");
         windowLevel = new MenuItem("Window/Level");
@@ -138,7 +138,7 @@ public class MainView extends VBox {
 
             Image out = controller.onWindowLevelChanged(w, l);
             if(out == null){
-                showAlert();
+                showAlert("Error binding slider controls");
             } else {
                 imageView.setImage(out);
                 int[][] freq = controller.getHistogramData();
@@ -159,7 +159,7 @@ public class MainView extends VBox {
                 int[][] freq = controller.getHistogramData();
                 histogramView.updateView(freq);
             } else {
-                showAlert();
+                showAlert("Error binding slider controls");
             }
         });
     }
@@ -174,14 +174,13 @@ public class MainView extends VBox {
             @Override
             public void handle(ActionEvent actionEvent) {
                 File imageFile = fileChooser.showOpenDialog(null);
-                if (imageFile != null) {
-                    image = new Image(imageFile.toURI().toString());
+                if (imageFile == null) return;
+                try {
                     Image img = controller.onLoadImageFromFile(imageFile);
-                    if (img == null) {
-                        showAlert();
-                    } else {
-                        imageView.setImage(img);
-                    }
+                    imageView.setImage(img);
+                    updateHistogram(controller);
+                } catch (IOException ex) {
+                    showAlert("Couldn't read image file:\n" + ex.getMessage());
                 }
             }
         };
@@ -192,8 +191,11 @@ public class MainView extends VBox {
             @Override
             public void handle(ActionEvent actionEvent) {
                 File file = fileChooser.showSaveDialog(null);
-                if (file != null) {
+                if (file == null) return;
+                try {
                     controller.onSaveImageToFile(file);
+                } catch (IOException ex) {
+                    showAlert("Couldn't save image:\n" + ex.getMessage());
                 }
             }
         };
@@ -202,11 +204,12 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> genericHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Image img = controller.onLoadImageFromResource();
-                if(img == null) {
-                    showAlert();
-                } else {
+                try {
+                    Image img = controller.onLoadImageFromResource(); // throws IOException
                     imageView.setImage(img);
+                    updateHistogram(controller);
+                } catch (IOException ex) {
+                    showAlert(ex.getMessage());
                 }
             }
         };
@@ -216,11 +219,12 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> greyScaleHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Image img = controller.onGrayScaleSelected();
-                if(img == null) {
-                    showAlert();
-                } else {
+                try {
+                    Image img = controller.onGrayScaleSelected(); // kan kasta IllegalStateException
                     imageView.setImage(img);
+                    updateHistogram(controller);
+                } catch (Exception ex) {
+                    showAlert(ex.getMessage());
                 }
             }
         };
@@ -230,11 +234,12 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> resetHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Image img = controller.onRevertToOriginal();
-                if(img == null) {
-                    showAlert();
-                } else {
+                try {
+                    Image img = controller.onRevertToOriginal();
                     imageView.setImage(img);
+                    updateHistogram(controller);
+                } catch (Exception ex) {
+                    showAlert(ex.getMessage());
                 }
             }
         };
@@ -244,11 +249,12 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> sharpenHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Image img = controller.onSharpenSelected();
-                if(img == null){
-                    showAlert();
-                } else {
+                try {
+                    Image img = controller.onSharpenSelected();
                     imageView.setImage(img);
+                    updateHistogram(controller);
+                } catch (Exception ex) {
+                    showAlert(ex.getMessage());
                 }
             }
         };
@@ -258,11 +264,12 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> blurHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Image img = controller.onBlurSelected();
-                if(img == null){
-                    showAlert();
-                } else {
+                try {
+                    Image img = controller.onBlurSelected();
                     imageView.setImage(img);
+                    updateHistogram(controller);
+                } catch (Exception ex) {
+                    showAlert(ex.getMessage());
                 }
             }
         };
@@ -271,18 +278,16 @@ public class MainView extends VBox {
         EventHandler<ActionEvent> windowLevelHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Image img = controller.onWindowLevelSelected();
-                if(img == null){
-                    showAlert();
-                } else {
-                    if(histogramView == null){
+                try {
+                    Image img = controller.onWindowLevelSelected();
+                    if (histogramView == null) {
                         createHistogramView();
                     }
-                    bindSliderControls(controller);
+                    bindSliderControls(controller); // se till att listeners där inne också fångar exceptions
                     imageView.setImage(img);
-
-                    int[][] freq = controller.getHistogramData();
-                    if (freq != null) histogramView.updateView(freq);
+                    updateHistogram(controller);
+                } catch (Exception ex) {
+                    showAlert(ex.getMessage());
                 }
             }
         };
@@ -291,11 +296,18 @@ public class MainView extends VBox {
 
 
 
-    private void showAlert(){
+    private void showAlert(String msg){
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Operation failed");
-        alert.setHeaderText("Couldn't load image");
-        alert.setContentText("Make sure an image is loaded and available.");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private void updateHistogram(Controller controller) {
+        if (histogramView != null) {
+            int[][] freq = controller.getHistogramData();
+            if (freq != null) histogramView.updateView(freq);
+        }
     }
 }
