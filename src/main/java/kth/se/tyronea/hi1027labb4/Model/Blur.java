@@ -3,44 +3,42 @@ package kth.se.tyronea.hi1027labb4.Model;
 import static kth.se.tyronea.hi1027labb4.Controller.PixelConverter.*;
 
 /**
- * Applicerar en enkel Gaussisk oskärpa (blur) på en ARGB-bild.
+ * Applies a simple Gaussian blur to an ARGB image.
  * <p>
- * Denna klass bearbetar varje pixel i bilden genom att använda en fast 3x3-viktmatris
- * {@code [[1,2,1],[2,4,2],[1,2,1]]} (summan = 16) för att mjuka upp färger och minska brus,
- * samtidigt som bildens övergripande struktur bevaras. Alfa-kanalen (transparensen)
- * påverkas inte av beräkningen.
+ * The processor convolves the input image with a fixed 3x3 kernel
+ * {@code [[1,2,1],[2,4,2],[1,2,1]]} (sum = 16) to softly smooth colors
+ * while preserving overall structure. The alpha channel is preserved
+ * from the current pixel; only RGB components are blurred.
  * </p>
  *
  * <p>
- * Vid bildkanter hanteras gränser genom att koordinater som hamnar utanför bilden
- * ”kläms” till närmaste giltiga pixel (kallas ofta för "edge replicate"). Detta
- * förhindrar indexfel och svarta kanter.
+ * Edges are handled by clamping coordinates to the nearest valid pixel
+ * (also known as "edge replicate"). This prevents out-of-bounds access
+ * and avoids black borders.
  * </p>
  *
  * <p>
- * Hjälpmetoder för att hämta och sätta ARGB-komponenter tillhandahålls via
- * {@link kth.se.tyronea.hi1027labb4.Controller.PixelConverter} (importerad statiskt).
+ * Utility methods for ARGB extraction and composition are provided via
+ * {@link kth.se.tyronea.hi1027labb4.Controller.PixelConverter} (statically imported).
  * </p>
- *
- * <p><b>Komplexitet:</b> O(bredd × höjd) med en liten konstant faktor.</p>
  */
 
 public class Blur implements IPixelProcessor {
 
     /**
-     * Bearbetar en bild genom att applicera en 3x3 Gaussisk-liknande filtermatris.
+     * Blurs an image using a 3x3 Gaussian-like kernel.
      * <p>
-     * För varje pixel beräknas ett viktat medelvärde baserat på närliggande pixlar
-     * enligt matrisen {@code [[1,2,1],[2,4,2],[1,2,1]]}, normaliserad genom division med 16.
-     * Koordinater som hamnar utanför bilden justeras till närmaste giltiga pixel.
-     * De resulterande röd-, grön- och blåkanalerna avrundas till närmaste heltal
-     * och kombineras sedan med originalpixelns alfa-kanal.
+     * For each pixel, the surrounding 3×3 neighborhood is weighted by
+     * {@code [[1,2,1],[2,4,2],[1,2,1]]} and normalized by 16. Out-of-range
+     * coordinates are clamped to remain within the image bounds. The resulting
+     * red, green, and blue channels are rounded to the nearest integer and
+     * recombined with the original pixel's alpha channel.
      * </p>
      *
-     * @param originalPixels en 2D-array av ARGB-pixlar där varje element representerar en pixel
-     *                       som ett heltal ({@code int}) med packade färgkomponenter
-     * @return en ny 2D-array med de bearbetade (blur:ade) pixlarna; originalet påverkas inte
-     * @implNote Alfa-kanalen hämtas från mittenpixeln – oskärpan påverkar endast färgkanalerna.
+     * @param originalPixels a non-null, rectangular 2D array of ARGB pixels
+     *                       indexed as {@code [row][column]}
+     * @return a new 2D array containing the blurred ARGB pixels; input is not modified
+     * @implNote The alpha component is taken from the center pixel (no blur on alpha).
      */
 
     @Override

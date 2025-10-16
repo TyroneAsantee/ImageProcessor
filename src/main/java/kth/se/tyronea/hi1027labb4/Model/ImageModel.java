@@ -3,25 +3,18 @@ package kth.se.tyronea.hi1027labb4.Model;
 import kth.se.tyronea.hi1027labb4.Controller.PixelConverter;
 
 /**
- * Fasadklass som representerar modellens centrala gränssnitt mot resten av systemet.
+ * Facade class that exposes the model's core interface to the rest of the system.
  * <p>
- * Denna klass fungerar som en *fasad* i MVC-arkitekturen och kapslar in den interna
- * hanteringen av pixlar, filter och bilddata. Den tillhandahåller ett tydligt och
- * avgränsat API för att läsa in, bearbeta och återställa bilder utan att den yttre
- * koden behöver känna till hur dessa operationer implementeras internt.
+ * This class acts as a <em>facade</em> in an MVC architecture: it encapsulates
+ * internal pixel storage, image filters, and processing details, and provides a
+ * clear API to load, process, restore, and analyze images without exposing
+ * implementation details.
  * </p>
  *
  * <p>
- * Bilddata lagras som tvådimensionella arrayer av heltal ({@code int[][]})
- * där varje element representerar en pixel i ARGB-format (alfa, röd, grön, blå).
- * Klassen hanterar både originalbilden och en bearbetad version av bilden
- * samt erbjuder metoder för att applicera olika bildfilter via
- * {@link IPixelProcessor}-gränssnittet.
- * </p>
- *
- * <p>
- * Genom att agera fasad gör denna klass det möjligt för andra delar av programmet
- * (framförallt kontroller och vyer) att arbeta med bildbearbetning på en högre abstraktionsnivå.
+ * Image data is stored as two-dimensional arrays of ARGB pixels ({@code int[][]}),
+ * with separate arrays for the original and the current (processed) image. Filters
+ * can be applied through the {@link IPixelProcessor} interface.
  * </p>
  */
 
@@ -33,10 +26,10 @@ public class ImageModel {
     private boolean isLoaded;
 
     /**
-     * Skapar en tom bildmodell (fasad) utan någon laddad bild.
+     * Creates an empty image model (facade) with no image loaded.
      * <p>
-     * {@link #isLoaded()} returnerar {@code false} tills en bild laddats in
-     * via {@link #loadFromPixels(int[][])}.
+     * {@link #isLoaded()} remains {@code false} until {@link #loadFromPixels(int[][])}
+     * is called.
      * </p>
      */
 
@@ -45,15 +38,15 @@ public class ImageModel {
     }
 
     /**
-     * Läser in en ny bild till modellen.
+     * Loads an image from a 2D pixel array.
      * <p>
-     * Bilden anges som en 2D-array av ARGB-pixlar. Metoden kontrollerar att
-     * datan inte är tom och att alla rader har samma längd. Både original-
-     * och aktuell bild kopieras internt för att säkerställa dataintegritet.
+     * Validates that the array is non-null, non-empty, and rectangular. Both
+     * the original and current arrays are initialized and populated with copies
+     * of the provided pixel data.
      * </p>
      *
-     * @param pixels en 2D-array av ARGB-pixlar
-     * @throws IllegalArgumentException om arrayen är null, tom eller oregelbunden
+     * @param pixels a 2D array of ARGB pixels
+     * @throws IllegalArgumentException if the array is null, empty, or ragged
      */
 
     public void loadFromPixels(int [][] pixels){
@@ -77,12 +70,11 @@ public class ImageModel {
     }
 
     /**
-     * Returnerar en kopia av den nuvarande (bearbetade) bilden.
+     * Returns a defensive copy of the current (processed) image.
      *
-     * @return en kopia av {@code currentPixels}
-     * @throws IllegalStateException om ingen bild är laddad
+     * @return a copy of {@code currentPixels}
+     * @throws IllegalStateException if no image is loaded
      */
-
     public int[][] getCurrentPixels() {
         if(!isLoaded) throw new IllegalStateException("No image loaded");
         int[][] copy = new int[height][width];
@@ -95,10 +87,10 @@ public class ImageModel {
     }
 
     /**
-     * Returnerar en kopia av originalbilden.
+     * Returns a defensive copy of the original image.
      *
-     * @return en kopia av {@code originalPixels}
-     * @throws IllegalStateException om ingen bild är laddad
+     * @return a copy of {@code originalPixels}
+     * @throws IllegalStateException if no image is loaded
      */
 
     public int[][] getOriginalPixels() {
@@ -113,9 +105,9 @@ public class ImageModel {
     }
 
     /**
-     * Sätter den aktuella bilden till en ny uppsättning pixlar.
+     * Replaces the current image with the provided pixel array.
      *
-     * @param currentPixels en 2D-array av ARGB-pixlar
+     * @param currentPixels a 2D array of ARGB pixels
      */
 
     public void setCurrentPixels(int[][] currentPixels) {
@@ -123,13 +115,9 @@ public class ImageModel {
     }
 
     /**
-     * Återställer nuvarande bild till originalet.
-     * <p>
-     * Denna metod kopierar tillbaka originalpixlarna till den aktuella bilden,
-     * vilket effektivt tar bort alla tillämpade filter eller transformationer.
-     * </p>
+     * Resets the current image to the original image.
      *
-     * @throws IllegalStateException om ingen bild är laddad
+     * @throws IllegalStateException if no image is loaded
      */
     public void resetToOriginal(){
         if(!isLoaded) throw new IllegalStateException("No image loaded");
@@ -141,14 +129,14 @@ public class ImageModel {
     }
 
     /**
-     * Genererar ett färghistogram för den nuvarande bilden.
+     * Computes a color histogram for the current image.
      * <p>
-     * Histogrammet visar hur ofta varje intensitetsnivå (0–255)
-     * förekommer i röd, grön och blå kanal. Resultatet returneras
-     * som en 256×3-array där varje rad motsvarar en intensitet.
+     * Returns a 256×3 array where {@code freq[i][0]} is the count of red-channel
+     * pixels with intensity {@code i}, {@code freq[i][1]} is green, and
+     * {@code freq[i][2]} is blue.
      * </p>
      *
-     * @return en 256×3-array med färgfrekvenser, eller {@code null} om ingen bild är laddad
+     * @return a 256×3 frequency array, or {@code null} if no image is present
      */
 
     public int[][] getHistogramForCurrentPixels(){
@@ -170,43 +158,43 @@ public class ImageModel {
     }
 
     /**
-     * Anger om en bild har laddats i modellen.
+     * Indicates whether an image has been loaded.
      *
-     * @return {@code true} om en bild är laddad, annars {@code false}
+     * @return {@code true} if an image is loaded; {@code false} otherwise
      */
     public boolean isLoaded() {
         return isLoaded;
     }
 
     /**
-     * Returnerar bildens höjd i pixlar.
+     * Returns the image height in pixels (row count).
      *
-     * @return antalet rader i bilden
+     * @return the height
      */
     public int getHeight() {
         return height;
     }
 
     /**
-     * Returnerar bildens bredd i pixlar.
+     * Returns the image width in pixels (column count).
      *
-     * @return antalet kolumner i bilden
+     * @return the width
      */
     public int getWidth() {
         return width;
     }
 
     /**
-     * Applicerar en bildprocessor (filter) på den nuvarande bilden.
+     * Applies a pixel processor (filter) to the current image.
      * <p>
-     * Metoden fungerar som en central ingångspunkt för bildbehandling.
-     * Den tar emot ett objekt som implementerar {@link IPixelProcessor}
-     * och uppdaterar den nuvarande bilden baserat på resultatet.
+     * Delegates the processing to the provided {@link IPixelProcessor} and
+     * updates the current image with the result. Dimensions must match the
+     * original image.
      * </p>
      *
-     * @param processor den processor som ska användas (t.ex. {@link GreyScale} eller {@link Blur})
-     * @throws IllegalStateException om ingen bild är laddad eller om resultatets dimensioner är felaktiga
-     * @throws IllegalArgumentException om {@code processor} är {@code null}
+     * @param processor the processor to apply (e.g., {@link GreyScale} or {@link Blur})
+     * @throws IllegalStateException if no image is loaded or if result dimensions are invalid
+     * @throws IllegalArgumentException if {@code processor} is {@code null}
      */
     public void apply(IPixelProcessor processor){
         if(!isLoaded) throw new IllegalStateException("No image loaded");

@@ -3,45 +3,35 @@ package kth.se.tyronea.hi1027labb4.Model;
 import static kth.se.tyronea.hi1027labb4.Controller.PixelConverter.*;
 
 /**
- * Applicerar ett skärpningsfilter (sharpening) på en bild.
+ * Applies a sharpening filter to an image.
  * <p>
- * Filtren i denna klass ökar bildens kontrast och framhäver detaljer genom att
- * först skapa en gråskaleversion av bilden, sedan en oskarpad (blur:ad) version,
- * och slutligen kombinera dessa för att förstärka kanter och konturer.
+ * The method first produces a grayscale version, then a blurred version of
+ * that grayscale image, and finally enhances edges using the relation
+ * {@code sharpened = 2 * originalGray - blurredGray}. This is a common
+ * unsharp mask technique to boost perceived sharpness.
  * </p>
  *
  * <p>
- * Skärpningen beräknas genom formeln:
- * {@code sharpened = 2 * originalGray - blurredGray}.
- * Detta kallas ibland för en <i>unsharp mask</i>-metod och används ofta inom
- * bildbehandling för att förbättra upplevd skärpa.
+ * The result is clamped to the range 0–255 and emitted as a grayscale image.
+ * The alpha channel (transparency) is copied from the original pixel.
  * </p>
- *
- * <p>
- * Resultatet begränsas till intensitetsintervallet 0–255, och alfa-kanalen
- * (transparensen) bevaras oförändrad från originalbilden.
- * </p>
- *
- * <p><b>Komplexitet:</b> O(bredd × höjd), då bilden bearbetas pixel för pixel.</p>
  */
 
 public class Sharpening implements IPixelProcessor {
 
     /**
-     * Bearbetar en bild för att öka skärpan.
+     * Sharpens the image by enhancing high-frequency details.
      * <p>
-     * Metoden använder en kombination av gråskala- och oskärpefilter:
+     * Steps:
      * <ol>
-     *   <li>Först konverteras bilden till gråskala med {@link GreyScale}.</li>
-     *   <li>Därefter suddas den gråskaleversionen ut med {@link Blur}.</li>
-     *   <li>Slutligen beräknas skillnaden mellan den ursprungliga gråskalan
-     *       och den oskarpa bilden, enligt formeln {@code 2 * original - blurred}.</li>
+     *   <li>Convert to grayscale using {@link GreyScale}.</li>
+     *   <li>Blur the grayscale image using {@link Blur}.</li>
+     *   <li>Combine as {@code 2 * gray - blurred}, then clamp to [0, 255].</li>
      * </ol>
-     * Detta förstärker högfrekventa detaljer (kanter) i bilden.
      * </p>
      *
-     * @param originalPixels en 2D-array av ARGB-pixlar som representerar originalbilden
-     * @return en ny 2D-array med den skärpta bilden i gråskala
+     * @param originalPixels a 2D array of ARGB pixels representing the source image
+     * @return a new 2D array containing the sharpened grayscale image
      */
 
     @Override

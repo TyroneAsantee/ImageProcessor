@@ -3,39 +3,31 @@ package kth.se.tyronea.hi1027labb4.Model;
 import static kth.se.tyronea.hi1027labb4.Controller.PixelConverter.*;
 
 /**
- * Omvandlar en färgbild till gråskala.
+ * Converts a color image to grayscale.
  * <p>
- * Denna klass bearbetar en ARGB-bild genom att beräkna ett genomsnitt av
- * röd-, grön- och blåkanalerna för varje pixel och sätter sedan alla tre
- * färgkomponenter till detta värde. Resultatet blir en bild i olika nyanser
- * av grått där ljushet baseras på pixelns ursprungliga färgintensitet.
+ * For each pixel, the arithmetic mean of its red, green, and blue components
+ * is computed and assigned to all three channels. The alpha channel (transparency)
+ * is preserved from the original pixel.
  * </p>
  *
  * <p>
- * Alfa-kanalen (transparensen) påverkas inte utan kopieras oförändrad från
- * originalbilden. Hjälpmetoder för att extrahera och skapa ARGB-pixlar
- * tillhandahålls via {@link kth.se.tyronea.hi1027labb4.Controller.PixelConverter}.
+ * Helper methods for ARGB extraction and composition are provided by
+ * {@link kth.se.tyronea.hi1027labb4.Controller.PixelConverter}.
  * </p>
- *
- * <p><b>Komplexitet:</b> O(bredd × höjd)</p>
  */
 
 public class GreyScale implements IPixelProcessor{
 
     /**
-     * Konverterar en bild till gråskala.
+     * Converts an ARGB image to grayscale.
      * <p>
-     * För varje pixel hämtas röd, grön och blå färgkomponent. Dessa tre
-     * värden medelvärdesberäknas för att få en grå nivå (0–255) som sedan
-     * används för alla färgkomponenter. Alfa-värdet behålls från originalet.
+     * The grayscale intensity is computed as {@code round((r + g + b) / 3.0)}.
+     * The alpha value is copied unchanged from the original pixel.
      * </p>
      *
-     * @param originalPixels en 2D-array av ARGB-pixlar ({@code int}) där varje element
-     *                       representerar en pixel i bilden
-     * @return en ny 2D-array med gråskalepixlar; originalet påverkas inte
-     * @implNote Ljusstyrkan beräknas som ett enkelt aritmetiskt medelvärde:
-     *           (r + g + b) / 3.0. Mer avancerade metoder (t.ex. luminansviktning)
-     *           används inte här.
+     * @param originalPixels a 2D array of ARGB pixels ({@code int}) representing the image
+     * @return a new 2D array containing the grayscale pixels; the input is not modified
+     * @implNote This method uses a simple arithmetic mean, not luminance weighting.
      */
 
     @Override
