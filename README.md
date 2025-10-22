@@ -43,9 +43,9 @@ The model exposes a simple interface (`IPixelProcessor`) allowing new image filt
 
 ## Screenshots
 
-| Blur Filter | File Menu | Histogram |
-|--------------|------------|------------|
-| ![Blur Filter](resources/Blur.png) | ![File Menu](resources/FileMenu.png) | ![Histogram](resources/Histogram.png) |
+| Blur Filter                                 | File Menu                                     | Histogram                                      |
+|---------------------------------------------|-----------------------------------------------|------------------------------------------------|
+| ![Blur Filter](src/main/resources/Blur.png) | ![File Menu](src/main/resources/FileMenu.png) | ![Histogram](src/main/resources/Histogram.png) |
 
 ---
 
