@@ -20,7 +20,7 @@ public class Controller {
 
 
     public Image onLoadImageFromResource() throws IOException {
-        InputStream input = getClass().getResourceAsStream("/sharpen.png");
+        InputStream input = getClass().getResourceAsStream("/mountain.png");
         if (input == null) {
             throw new IOException("Couldn't find resource");
         }
